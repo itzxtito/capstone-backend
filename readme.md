@@ -27,11 +27,12 @@ npm install
 ```
 
 ### 3️⃣ Create a `.env` File
+
 Inside the **backend** folder, create a file named `.env` and add:
-```
+```sh
 MONGO_URI="mongodb+srv://itzxtito:Titojose100@cluster0.xxu6e.mongodb.net/Capstone?retryWrites=true&w=majority&appName=Cluster0"
 PORT=5001
-```
+
 Replace `your_mongodb_connection_string` with your actual MongoDB URI.
 
 ### 4️⃣ Start the Backend Server
