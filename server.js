@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ✅ Serve uploaded images as static files
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -32,10 +32,12 @@ mongoose.connect(process.env.MONGO_URI, {
 const recipeRoutes = require("./routes/recipeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const favoritesRoutes = require("./routes/favoritesRoutes");
+const commentRoutes = require("./routes/commentRoutes"); // ✅ Added comment routes
 
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", favoritesRoutes);
+app.use("/api/comments", commentRoutes); // ✅ Mount comments API
 
 // ✅ Default Route
 app.get("/", (req, res) => {

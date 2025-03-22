@@ -6,6 +6,7 @@ const recipeSchema = new mongoose.Schema({
   ingredients: [String],
   instructions: String,
   image: String,
+  author: { type: String, required: true }, // ✅ New field: Author's username
   createdAt: { type: Date, default: Date.now },
 });
 

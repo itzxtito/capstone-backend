@@ -35,6 +35,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ✅ Get featured recipes (returns 6 random recipes)
+router.get("/featured", async (req, res) => {
+  try {
+    const recipes = await Recipe.aggregate([{ $sample: { size: 6 } }]); // Get 6 random recipes
+    res.json(recipes);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // ✅ Get a single recipe by ID
 router.get("/:id", async (req, res) => {
   try {
@@ -49,15 +59,16 @@ router.get("/:id", async (req, res) => {
 // ✅ Create a new recipe (Supports Image Upload)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { name, category, ingredients, instructions } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : null; // Save image path
+    const { name, category, ingredients, instructions, author } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newRecipe = new Recipe({
       name,
       category,
-      ingredients: ingredients.split(","), // Convert string to array
+      ingredients: ingredients.split(","),
       instructions,
-      image
+      image,
+      author, // ✅ Save author's name
     });
 
     await newRecipe.save();
@@ -85,11 +96,18 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-// ✅ Delete a recipe
+// ✅ Delete a recipe (Only author can delete)
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedRecipe = await Recipe.findByIdAndDelete(req.params.id);
-    if (!deletedRecipe) return res.status(404).json({ error: "Recipe not found" });
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) return res.status(404).json({ error: "Recipe not found" });
+
+    // Ensure only the author can delete the recipe
+    if (recipe.author !== req.body.author) {
+      return res.status(403).json({ error: "You can only delete your own recipes" });
+    }
+
+    await Recipe.findByIdAndDelete(req.params.id);
     res.json({ message: "Recipe deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
