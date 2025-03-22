@@ -1,7 +1,18 @@
 const express = require("express");
 const Recipe = require("../models/Recipe");
+const multer = require("multer");
+const path = require("path");
 
 const router = express.Router();
+
+// ✅ Configure Multer for file storage
+const storage = multer.diskStorage({
+  destination: "./uploads",
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
 
 // ✅ Get all recipes (Supports Search & Category Filtering)
 router.get("/", async (req, res) => {
@@ -35,10 +46,20 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Create a new recipe
-router.post("/", async (req, res) => {
+// ✅ Create a new recipe (Supports Image Upload)
+router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const newRecipe = new Recipe(req.body);
+    const { name, category, ingredients, instructions } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null; // Save image path
+
+    const newRecipe = new Recipe({
+      name,
+      category,
+      ingredients: ingredients.split(","), // Convert string to array
+      instructions,
+      image
+    });
+
     await newRecipe.save();
     res.status(201).json(newRecipe);
   } catch (err) {
@@ -47,9 +68,16 @@ router.post("/", async (req, res) => {
 });
 
 // ✅ Update a recipe
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
-    const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { name, category, ingredients, instructions } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : req.body.image; // Keep old image if no new upload
+
+    const updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, 
+      { name, category, ingredients: ingredients.split(","), instructions, image },
+      { new: true }
+    );
+
     if (!updatedRecipe) return res.status(404).json({ error: "Recipe not found" });
     res.json(updatedRecipe);
   } catch (err) {
