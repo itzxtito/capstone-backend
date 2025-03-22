@@ -59,24 +59,32 @@ router.get("/:id", async (req, res) => {
 // ✅ Create a new recipe (Supports Image Upload)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
+    console.log("Received Data:", req.body); // ✅ Log incoming data for debugging
+
     const { name, category, ingredients, instructions, author } = req.body;
+    if (!name || !category || !ingredients || !instructions || !author) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
     const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newRecipe = new Recipe({
       name,
       category,
-      ingredients: ingredients.split(","),
+      ingredients: ingredients.split(","), // Ensure ingredients are an array
       instructions,
       image,
-      author, // ✅ Save author's name
+      author,
     });
 
     await newRecipe.save();
-    res.status(201).json(newRecipe);
+    res.status(201).json({ message: "Recipe submitted successfully!", newRecipe });
   } catch (err) {
-    res.status(400).json({ error: "Invalid data" });
+    console.error("Recipe Submission Error:", err);
+    res.status(400).json({ error: "Invalid data format" });
   }
 });
+
 
 // ✅ Update a recipe
 router.put("/:id", upload.single("image"), async (req, res) => {
