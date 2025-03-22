@@ -27,9 +27,9 @@ npm install
 ```
 
 ### 3️⃣ Create a `.env` File
-```sh
-Inside the **backend** folder, create a file named `.env` and add:
 
+Inside the **backend** folder, create a file named `.env` and add:
+```sh
 MONGO_URI="mongodb+srv://itzxtito:Titojose100@cluster0.xxu6e.mongodb.net/Capstone?retryWrites=true&w=majority&appName=Cluster0"
 PORT=5001
 
