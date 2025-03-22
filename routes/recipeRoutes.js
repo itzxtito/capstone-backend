@@ -107,11 +107,13 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 // ✅ Delete a recipe (Only author can delete)
 router.delete("/:id", async (req, res) => {
   try {
+    const { author } = req.body; // ✅ Ensure the author is being sent in the request body
     const recipe = await Recipe.findById(req.params.id);
+
     if (!recipe) return res.status(404).json({ error: "Recipe not found" });
 
-    // Ensure only the author can delete the recipe
-    if (recipe.author !== req.body.author) {
+    // ✅ Make sure only the author can delete the recipe
+    if (recipe.author !== author) {
       return res.status(403).json({ error: "You can only delete your own recipes" });
     }
 
@@ -121,5 +123,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 module.exports = router;
