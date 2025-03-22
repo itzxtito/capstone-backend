@@ -110,16 +110,24 @@ router.delete("/:id", async (req, res) => {
     const { author } = req.body; // ✅ Ensure the author is being sent in the request body
     const recipe = await Recipe.findById(req.params.id);
 
-    if (!recipe) return res.status(404).json({ error: "Recipe not found" });
+    if (!recipe) {
+      console.log("❌ Recipe not found:", req.params.id);
+      return res.status(404).json({ error: "Recipe not found" });
+    }
 
-    // ✅ Make sure only the author can delete the recipe
+    console.log(`Attempting to delete: ${recipe.name} by ${recipe.author}`);
+    console.log(`Request sent by: ${author}`);
+
     if (recipe.author !== author) {
+      console.log("❌ Forbidden: Author mismatch");
       return res.status(403).json({ error: "You can only delete your own recipes" });
     }
 
     await Recipe.findByIdAndDelete(req.params.id);
+    console.log("✅ Recipe deleted successfully");
     res.json({ message: "Recipe deleted successfully" });
   } catch (err) {
+    console.error("❌ Server error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
