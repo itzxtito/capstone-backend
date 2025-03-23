@@ -2,6 +2,7 @@ const express = require("express");
 const Recipe = require("../models/Recipe");
 const multer = require("multer");
 const path = require("path");
+const protect = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -56,17 +57,17 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Create a new recipe (Supports Image Upload)
-router.post("/", upload.single("image"), async (req, res) => {
+// ✅ Create a new recipe (Protected Route - User must be logged in)
+router.post("/", protect, upload.single("image"), async (req, res) => {
   try {
-    console.log("Received Data:", req.body); // ✅ Log incoming data for debugging
+    console.log("Received Data:", req.body);
 
-    const { name, category, ingredients, instructions, author } = req.body;
-    if (!name || !category || !ingredients || !instructions || !author) {
+    const { name, category, ingredients, instructions } = req.body;
+    const image = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!name || !category || !ingredients || !instructions) {
       return res.status(400).json({ error: "All fields are required" });
     }
-
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
 
     const newRecipe = new Recipe({
       name,
@@ -74,7 +75,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       ingredients: ingredients.split(","), // Ensure ingredients are an array
       instructions,
       image,
-      author,
+      author: req.user.username, // ✅ Assign logged-in user as author
     });
 
     await newRecipe.save();
@@ -85,9 +86,8 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-
 // ✅ Update a recipe
-router.put("/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", protect, upload.single("image"), async (req, res) => {
   try {
     const { name, category, ingredients, instructions } = req.body;
     const image = req.file ? `/uploads/${req.file.filename}` : req.body.image; // Keep old image if no new upload
@@ -105,20 +105,18 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 });
 
 // ✅ Delete a recipe (Only author can delete)
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protect, async (req, res) => {
   try {
-    const { author } = req.body; // ✅ Ensure the author is being sent in the request body
     const recipe = await Recipe.findById(req.params.id);
-
     if (!recipe) {
       console.log("❌ Recipe not found:", req.params.id);
       return res.status(404).json({ error: "Recipe not found" });
     }
 
     console.log(`Attempting to delete: ${recipe.name} by ${recipe.author}`);
-    console.log(`Request sent by: ${author}`);
+    console.log(`Request sent by: ${req.user.username}`);
 
-    if (recipe.author !== author) {
+    if (recipe.author !== req.user.username) {
       console.log("❌ Forbidden: Author mismatch");
       return res.status(403).json({ error: "You can only delete your own recipes" });
     }
@@ -131,6 +129,5 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
 
 module.exports = router;
