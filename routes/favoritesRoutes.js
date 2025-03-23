@@ -1,38 +1,59 @@
 const express = require("express");
 const User = require("../models/User");
+const Recipe = require("../models/Recipe"); // ✅ Ensure Recipe model is imported
 
 const router = express.Router();
 
 // ✅ Save a recipe to favorites
-router.post("/:email/favorites", async (req, res) => {
+router.post("/:username/favorites", async (req, res) => {
+  const { username } = req.params;
+  const { recipeId } = req.body;
+
   try {
-    const { recipeId } = req.body;
-    const user = await User.findOne({ email: req.params.email });
+    // Find user by username
+    const user = await User.findOne({ username });
 
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    if (!user.favorites.includes(recipeId)) {
-      user.favorites.push(recipeId);
-      await user.save();
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.json({ message: "Recipe added to favorites", favorites: user.favorites });
+    // Find the recipe by recipeId
+    const recipe = await Recipe.findById(recipeId);
+    if (!recipe) {
+      return res.status(404).json({ error: "Recipe not found" });
+    }
+
+    // Add only the recipe's ObjectId to the favorites array
+    user.favorites.push(recipe._id);  // Use recipe._id (ObjectId)
+    await user.save();
+
+    res.status(200).json({ message: "Recipe added to favorites!" });
   } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
+    console.error("Error adding to favorites:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // ✅ Get all favorite recipes for a user
-router.get("/:email/favorites", async (req, res) => {
+router.get("/:username/favorites", async (req, res) => {
+  const { username } = req.params;
+  console.log("Incoming GET favorites for:", username); // ✅ Log incoming request
+
   try {
-    const user = await User.findOne({ email: req.params.email }).populate("favorites");
+    const user = await User.findOne({ username }).populate("favorites");
+    if (!user) {
+      console.log("❌ User not found in DB");
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    if (!user) return res.status(404).json({ error: "User not found" });
-
+    console.log("✅ Favorites found:", user.favorites);
     res.json(user.favorites);
   } catch (err) {
-    res.status(500).json({ error: "Server error", details: err.message });
+    console.error("❌ Error fetching favorites:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
+
+
 
 module.exports = router;

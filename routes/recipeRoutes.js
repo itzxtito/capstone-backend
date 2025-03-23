@@ -15,10 +15,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ✅ Get all recipes (Supports Search & Category Filtering)
+// ✅ Get all recipes (Supports Search, Category, and Author Filtering)
 router.get("/", async (req, res) => {
   try {
-    const { search, category } = req.query;
+    const { search, category, author } = req.query;
     let query = {};
 
     if (search) {
@@ -29,9 +29,14 @@ router.get("/", async (req, res) => {
       query.category = category;
     }
 
+    if (author) {
+      query.author = author; // ✅ Filter by author's username
+    }
+
     const recipes = await Recipe.find(query);
     res.json(recipes);
   } catch (err) {
+    console.error("❌ Error fetching recipes:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
