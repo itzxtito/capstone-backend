@@ -1,104 +1,98 @@
-# Recipe App Backend 🍽️
+## 📦 Potluck Recipe API (Backend)
 
-## Overview
-This is the **backend for the Recipe App**, built using **Node.js, Express, and MongoDB**. It provides a REST API for managing recipes, users, and favorites.
+This is the **backend REST API** for the Potluck Recipe App, built with **Node.js, Express, and MongoDB**. It handles all data operations including authentication, recipe management, comments, and favorites.
 
-## Features
-✅ **CRUD operations for recipes** (Create, Read, Update, Delete)  
-✅ **Search & Filter** recipes by name and category  
-✅ **User system** (Register users with email)  
-✅ **Save & retrieve favorite recipes**  
+---
 
-## Tech Stack
-- **Backend:** Node.js, Express  
-- **Database:** MongoDB (Mongoose ORM)  
-- **API Testing:** Postman  
+### ⚙️ Tech Stack
 
-## Installation & Setup
-### 1️⃣ Clone the Repository
-```sh
-git https://github.com/itzxtito/capstone-backend.git
-cd backend
+- **Node.js + Express** for server & API
+- **MongoDB + Mongoose** for database & models
+- **Multer** for image uploads
+- **JWT (jsonwebtoken)** for authentication
+- **CORS, bcrypt, dotenv**
+
+---
+
+### 📁 Project Structure
+
+```
+/backend
+│
+├── models/           # Mongoose schemas (User, Recipe, Comment)
+├── routes/           # API routes (auth, recipes, comments, favorites)
+├── middleware/       # Authentication middleware
+├── uploads/          # Stores uploaded recipe images
+├── server.js         # Main server entry point
+└── .env              # Environment variables (Mongo URI, JWT secret)
 ```
 
-### 2️⃣ Install Dependencies
-```sh
+---
+
+### 🔐 Authentication
+
+- Users **sign up & log in** using `/api/auth/register` and `/api/auth/login`
+- JWT token is returned and used for protected routes
+- `protect` middleware verifies JWT tokens on sensitive routes like creating/editing/deleting recipes
+
+---
+
+### 🍽️ API Endpoints
+
+#### 🔐 Auth Routes (`/api/auth`)
+- `POST /register` – Create user
+- `POST /login` – Authenticate user & return JWT
+
+#### 🍲 Recipe Routes (`/api/recipes`)
+- `GET /` – All recipes (optionally filtered by `search` or `category`)
+- `GET /featured` – Random 6 featured recipes
+- `GET /:id` – Recipe by ID
+- `POST /` – Create new recipe _(protected + image upload)_
+- `PUT /:id` – Update recipe _(protected)_
+- `DELETE /:id` – Delete recipe _(protected, must be author)_
+
+#### ❤️ Favorite Routes (`/api/users/:username/favorites`)
+- `GET /` – Get all favorite recipes for a user
+- `POST /:id` – Add a recipe to user's favorites
+- `DELETE /:id` – Remove from favorites
+
+#### 💬 Comment Routes (`/api/comments`)
+- `POST /` – Post a comment
+- `GET /:recipeId` – Get all comments for a recipe
+
+---
+
+### 📦 Sample `.env` File
+
+```
+MONGO_URI=mongodb+srv://your-connection-string
+JWT_SECRET=supersecretkey
+```
+
+---
+
+### 🚀 Running the Server
+
+Make sure you’ve installed the dependencies first:
+
+```bash
 npm install
 ```
 
-### 3️⃣ Create a `.env` File
+Then run the server:
 
-Inside the **backend** folder, create a file named `.env` and add:
-```sh
-MONGO_URI="mongodb+srv://itzxtito:Titojose100@cluster0.xxu6e.mongodb.net/Capstone?retryWrites=true&w=majority&appName=Cluster0"
-PORT=5001
-
-Replace `your_mongodb_connection_string` with your actual MongoDB URI.
-```
-
-### 4️⃣ Start the Backend Server
-```sh
+```bash
 node server.js
+# or with nodemon
+npx nodemon server.js
 ```
-The server should now run at:  
-```
-http://localhost:5001
-```
+
+Server runs at: `http://localhost:5001`
 
 ---
 
-## API Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/recipes` | Get all recipes (supports search & filter) |
-| `GET` | `/api/recipes/:id` | Get a single recipe |
-| `POST` | `/api/recipes` | Add a new recipe |
-| `PUT` | `/api/recipes/:id` | Update a recipe |
-| `DELETE` | `/api/recipes/:id` | Delete a recipe |
-| `POST` | `/api/auth/register` | Register a user |
-| `POST` | `/api/users/:email/favorites` | Save a recipe to favorites |
-| `GET` | `/api/users/:email/favorites` | Get a user’s favorite recipes |
+### 🧪 Testing
+
+Use [Postman](https://www.postman.com/) or [Thunder Client](https://www.thunderclient.com/) to test API routes manually — make sure to include `Authorization: Bearer <token>` header for protected routes.
 
 ---
-
-## How to Test the API (Postman)
-1. Open **Postman**  
-2. Use `http://localhost:5001/api/recipes` for testing  
-3. **Example: Add a Recipe**  
-   - Method: `POST`  
-   - URL: `http://localhost:5001/api/recipes`  
-   - Body (JSON):  
-     ```json
-     {
-       "name": "Spaghetti Carbonara",
-       "category": "Italian",
-       "ingredients": ["Spaghetti", "Eggs", "Parmesan", "Pancetta", "Black Pepper"],
-       "instructions": "Boil spaghetti. Fry pancetta. Mix eggs and cheese. Combine everything.",
-       "image": "https://source.unsplash.com/400x300/?pasta"
-     }
-     ```
-4. **Search Recipes by Name**  
-   ```
-   GET http://localhost:5001/api/recipes?search=pasta
-   ```
-5. **Filter by Category**  
-   ```
-   GET http://localhost:5001/api/recipes?category=Italian
-   ```
-6. **Save a Recipe to Favorites**  
-   ```
-   POST http://localhost:5001/api/users/test@example.com/favorites
-   Body: { "recipeId": "64a1d7f0e4b3f4e2d3b5c9a1" }
-   ```
-7. **Retrieve User Favorites**  
-   ```
-   GET http://localhost:5001/api/users/test@example.com/favorites
-   ```
-
----
-
-## Future Improvements
-🔹 More Recipes!
-
-## Author
-📌 **Tito Feliciano** – [GitHub Profile](https://github.com/itzxtito)
