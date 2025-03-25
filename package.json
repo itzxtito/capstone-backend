@@ -1,6 +1,8 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
+  "name": "potluck-recipe-app",
+"version": "1.0.0",
+"description": "A full-stack recipe app with authentication, favorites, and comments."
+,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
