@@ -1,8 +1,7 @@
 {
   "name": "potluck-recipe-app",
-"version": "1.0.0",
-"description": "A full-stack recipe app with authentication, favorites, and comments."
-,
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +9,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
