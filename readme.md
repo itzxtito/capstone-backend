@@ -4,6 +4,24 @@ This is the **backend REST API** for the Potluck Recipe App, built with **Node.j
 
 ---
 
+## 🌐 Live API
+
+- **Backend URL (Render)**: [https://capstone-backend-zdhp.onrender.com](https://capstone-backend-zdhp.onrender.com)
+
+Visit [https://capstone-backend-zdhp.onrender.com/api/recipes](https://capstone-backend-zdhp.onrender.com/api/recipes) to test and view live recipe data in JSON format.
+
+## 🛠 Environment Variables (.env)
+
+Your `.env` file should include:
+
+PORT=5001  
+MONGO_URI=mongodb+srv://itzxtito:<your-password>@cluster0.xxu6e.mongodb.net/Capstone?retryWrites=true&w=majority&appName=Cluster0  
+JWT_SECRET=randompassword123
+
+⚠️ Be sure not to include your `.env` file in your GitHub repo — your `.gitignore` should already handle this.
+
+---
+
 ### ⚙️ Tech Stack
 
 - **Node.js + Express** for server & API
